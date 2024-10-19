@@ -8,6 +8,7 @@ import (
 	"strconv"
 	"test_ozon/config"
 	"test_ozon/domain"
+	"test_ozon/domain/repository"
 	"test_ozon/routes"
 )
 
@@ -18,6 +19,7 @@ func main() {
 	}
 	cfg := config.Init()
 	db, _ := domain.Connect(&cfg.Database)
+	repository.CreateUrlTable(db)
 
 	router := routes.SetupRoutes()
 
@@ -30,5 +32,6 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+
 	defer domain.Disconnect(db)
 }

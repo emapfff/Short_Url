@@ -6,9 +6,10 @@ import (
 )
 
 func SetupRoutes() *mux.Router {
+
 	router := mux.NewRouter()
 
-	//router.HandleFunc("/api/url", _).Methods("POST")
+	router.HandleFunc("/api/url", controllers.SaveUrl).Methods("POST")
 	router.HandleFunc("/api/url", controllers.GetOriginalUrl).Methods("GET")
 
 	return router
