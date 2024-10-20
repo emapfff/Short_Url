@@ -1,8 +1,32 @@
 package config
 
 import (
+	"fmt"
+	"log"
 	"os"
 )
+
+type StorageMethod int
+
+const (
+	DB StorageMethod = iota
+	Map
+)
+
+func (sm StorageMethod) String() string {
+	return [...]string{"DB", "Map"}[sm]
+}
+
+func ParseStorageMethod(s string) (StorageMethod, error) {
+	switch s {
+	case "DB":
+		return DB, nil
+	case "Map":
+		return Map, nil
+	default:
+		return -1, fmt.Errorf("invalid storage method: %s", s)
+	}
+}
 
 type DatabaseConfig struct {
 	DbUser, DbPassword, DbName, DbHost, DbPort string
@@ -14,11 +38,17 @@ type ServerConfig struct {
 }
 
 type Config struct {
-	Database DatabaseConfig
-	Server   ServerConfig
+	Database      DatabaseConfig
+	Server        ServerConfig
+	StorageMethod StorageMethod
 }
 
 func Init() *Config {
+	str := getEnv("STORAGE_METHOD", "")
+	storageMethod, err := ParseStorageMethod(str)
+	if err != nil {
+		log.Fatal(err)
+	}
 	return &Config{
 		Database: DatabaseConfig{
 			DbUser:     getEnv("POSTGRES_USER", ""),
@@ -31,6 +61,7 @@ func Init() *Config {
 			Port:   getEnv("SERVER_PORT", ""),
 			Domain: getEnv("SERVER_DOMAIN", ""),
 		},
+		StorageMethod: storageMethod,
 	}
 }
 

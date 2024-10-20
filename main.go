@@ -12,14 +12,22 @@ import (
 	"test_ozon/routes"
 )
 
+var Repo domain.UrlModel
+
 func main() {
 	err := godotenv.Load()
 	if err != nil {
 		log.Fatal("Loading .env is failed...")
 	}
 	cfg := config.Init()
-	db, _ := domain.Connect(&cfg.Database)
-	repository.CreateUrlTable(db)
+
+	if cfg.StorageMethod == config.DB {
+		db, _ := repository.Connect(&cfg.Database)
+		repository.CreateUrlTable(db)
+		defer repository.Disconnect(db)
+	} else {
+		repository.CreateUrlMap()
+	}
 
 	router := routes.SetupRoutes()
 
@@ -32,6 +40,4 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	defer domain.Disconnect(db)
 }
